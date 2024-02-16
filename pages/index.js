@@ -1,22 +1,37 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 function HomePage() {
   const emailInputRef = useRef();
   const feedbackInputRef = useRef();
+  const [feedback, setFeedback] = useState();
 
-  async function submitHandler(event) {
+  function submitHandler(event) {
     event.preventDefault();
     const enteredEmail = emailInputRef.current.value;
     const enteredFeedback = feedbackInputRef.current.value;
 
-    const response = await fetch("/api/feedback", {
-      method: "post",
-      body: JSON.stringify({
-        email: enteredEmail,
-        feedbackInputRef: enteredFeedback,
-      }),
-      headers: { "Content-Type": "application/json" },
-    });
+    const feedbackObj = {
+      email: enteredEmail,
+      text: enteredFeedback,
+    };
+
+    async function fetcher() {
+      const response = await fetch("/api/feedback", {
+        method: "POST",
+        body: JSON.stringify(feedbackObj),
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await response.json();
+      console.log(data.feedback);
+    }
+    fetcher();
+  }
+
+  async function loadFeedbackHandler() {
+    const response = await fetch("/api/feedback");
+    const data = await response.json();
+
+    setFeedback(data.feedbackArray);
   }
 
   return (
@@ -34,6 +49,18 @@ function HomePage() {
         </div>
         <button type="submit">Submit your feedback</button>
       </form>
+      <hr />
+      <button onClick={loadFeedbackHandler}>Get feedback</button>
+      {feedback && (
+        <ul>
+          {feedback.map((item) => (
+            <li key={item.id}>
+              <p>{item.email}</p>
+              <p>{item.text}</p>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
