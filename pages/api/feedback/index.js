@@ -2,12 +2,12 @@ import fs from "fs";
 import { cwd } from "process";
 import path from "path";
 
-function constructFilePath() {
+export function constructFilePath() {
   //create absolute path to file
   return path.join(cwd(), "data", "feedback.json");
 }
 
-function readFile(path) {
+export function readFile(path) {
   //this will be json because feedback.json
   const jsonData = fs.readFileSync(path);
   //convert the existing json to std object to use push()
